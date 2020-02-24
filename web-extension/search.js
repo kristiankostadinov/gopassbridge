@@ -102,6 +102,10 @@ function _displaySearchResults(response, isHostQuery) {
     const results = document.getElementById('results');
     results.innerHTML = '';
     response.forEach(result => {
+        // This is a workaround for gopass issue #1166 (windows only)
+        if (window.navigator.userAgent.toLocaleLowerCase().includes('windows')) {
+            result = result.replace(/\\/g, '/')
+        }
         const entry = document.createElement('div');
         entry.classList.add('entry');
         entry.appendChild(
@@ -138,15 +142,7 @@ function _onSearchResults(response, isHostQuery) {
                 LAST_DOMAIN_SEARCH_PREFIX + urlDomain(currentPageUrl),
                 document.getElementById('search_input').value
             );
-            // This is a workaround for gopass issue #1166 (windows only)
-            if (window.navigator.userAgent.toLocaleLowerCase().includes('windows')) {
-                _displaySearchResults(
-                    response.map(itm => itm.replace(/\\/g, '/')),
-                    isHostQuery
-                );
-            } else {
-                _displaySearchResults(response, isHostQuery);
-            }
+            _displaySearchResults(response, isHostQuery);
         } else {
             browser.storage.local.remove(LAST_DOMAIN_SEARCH_PREFIX + urlDomain(currentPageUrl));
             _displayNoResults();
